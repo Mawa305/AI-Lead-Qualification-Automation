@@ -1,0 +1,342 @@
+{
+  "name": "AI Lead Qualification & Automated Follow-Up System",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        96,
+        208
+      ],
+      "id": "705c7868-4d73-4184-92a4-d566eeb8bdaa",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "42gBaeIbP3mTnXCs",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "AI Lead Qualification Form",
+        "formDescription": "Tell us about your business and what you need help with.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Business/Company"
+            },
+            {
+              "fieldLabel": "What do you need help with?",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Budget"
+            },
+            {
+              "fieldLabel": "Additional Details",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "65f608d7-4823-4e3f-80e1-6062ca08d91e",
+      "name": "Lead Intake Form",
+      "webhookId": "46ba6be5-81ef-4571-8eb0-51084930fc7f"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Name: {{$json.Name}}\nEmail: {{$json.Email}}\nBusiness: {{$json[\"Business/Company\"]}}\nHelp Needed: {{$json[\"What do you need help with?\"]}}\nBudget: {{$json.Budget}}\nAdditional Details: {{$json[\"Additional Details\"]}}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an AI Lead Qualification Agent for a business.\n\nAnalyze the lead information provided by the user and return a structured qualification.\n\nYour responsibilities:\n1. Identify the lead's business and requirements.\n2. Understand their main problem or requested service.\n3. Consider their stated budget, urgency, and level of intent.\n4. Classify the lead as Hot, Warm, or Cold based only on the information provided.\n5. Give a concise reason for the classification.\n6. Create a short, factual lead summary.\n7. Write a professional and friendly follow-up message.\n8. Do not invent missing information or make assumptions about the lead.\n9. If important information is missing, mention it briefly in the summary.\n\nKeep the output concise and professional.\n\nThe output must follow the required structured format exactly.\nDo not include the lead's email address in the lead summary.\n\nKeep the suggested follow-up under 120 words and ask only the 3 most important missing questions."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a4694173-b2b6-43a7-bf24-de68d6630398",
+      "name": "AI Lead Qualification Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"lead_status\": \"Warm\",\n  \"reason\": \"The lead has a clear business need and a stated budget.\",\n  \"lead_summary\": \"The lead needs an AI chatbot for customer support.\",\n  \"suggested_follow_up\": \"Thank you for sharing your requirements. I would be happy to discuss the next steps with you.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        208
+      ],
+      "id": "ca49a34a-4129-483d-9158-75f08e9d37bd",
+      "name": "Lead Data Parser"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1f5KF6ekUbC4QQXlcqz5t4M-ejPmqMMEJlAqC8FF62tE",
+          "mode": "list",
+          "cachedResultName": "AI Lead Qualification Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f5KF6ekUbC4QQXlcqz5t4M-ejPmqMMEJlAqC8FF62tE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f5KF6ekUbC4QQXlcqz5t4M-ejPmqMMEJlAqC8FF62tE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Lead Intake Form').item.json.Name }}",
+            "Email": "={{ $('Lead Intake Form').item.json.Email }}",
+            "Business": "={{ $('Lead Intake Form').item.json['Business/Company'] }}",
+            "Need": "={{ $('Lead Intake Form').item.json['What do you need help with?'] }}",
+            "Budget": "={{ $('Lead Intake Form').item.json.Budget }}",
+            "Lead Status": "={{ $json.output.lead_status }}",
+            "Reason": "={{ $json.output.reason }}",
+            "Lead Summary": "={{ $json.output.lead_summary }}",
+            "Suggested Follow-Up": "={{ $json.output.suggested_follow_up }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business",
+              "displayName": "Business",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Need",
+              "displayName": "Need",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Summary",
+              "displayName": "Lead Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Suggested Follow-Up",
+              "displayName": "Suggested Follow-Up",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        0
+      ],
+      "id": "e8260bbc-1d02-4fd8-b1de-3c178f88fc59",
+      "name": "Save Qualified Lead",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "B3clMFi8nUibkem5",
+          "name": "OAuth account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Lead Intake Form').item.json.Email }}",
+        "subject": "Thanks for your inquiry",
+        "emailType": "text",
+        "message": "={{ $('AI Lead Qualification Agent').item.json.output.suggested_follow_up }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "37a52485-eba8-4e27-9d31-c3aba8627914",
+      "name": "Send Personalized Follow-Up",
+      "webhookId": "b8a8f523-c369-48a4-838c-d0006cbe238f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cZjDsuZzZSXJFJ1i",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Lead Qualification Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Intake Form": {
+      "main": [
+        [
+          {
+            "node": "AI Lead Qualification Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Lead Qualification Agent": {
+      "main": [
+        [
+          {
+            "node": "Save Qualified Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Data Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Lead Qualification Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Qualified Lead": {
+      "main": [
+        [
+          {
+            "node": "Send Personalized Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "541dc643-2f7b-44e7-bf82-4a5950a479dc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3c9797386e3a44263777e5ee88181628f159d57429b54997996140e0c0d2f7e1"
+  },
+  "nodeGroups": [],
+  "id": "rZiJ0iiUGS9sa4MN",
+  "tags": []
+}
