@@ -112,16 +112,14 @@
           "__rl": true,
           "value": "1f5KF6ekUbC4QQXlcqz5t4M-ejPmqMMEJlAqC8FF62tE",
           "mode": "list",
-          "cachedResultName": "AI Lead Qualification Leads",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f5KF6ekUbC4QQXlcqz5t4M-ejPmqMMEJlAqC8FF62tE/edit?usp=drivesdk"
+          "cachedResultName": "AI Lead Qualification Leads"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f5KF6ekUbC4QQXlcqz5t4M-ejPmqMMEJlAqC8FF62tE/edit#gid=0"
-        },
+          "cachedResultName": "Sheet1"
+          },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
